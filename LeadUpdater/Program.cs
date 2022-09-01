@@ -1,4 +1,5 @@
 using LeadUpdater;
+using LeadUpdater.Business;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options =>
@@ -8,7 +9,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddHostedService<Worker>();
+        services.AddScoped<IHttpClientService, HttpClientService>();
     })
     .Build();
-
 await host.RunAsync();
