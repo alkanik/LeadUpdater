@@ -17,6 +17,7 @@ namespace LeadUpdater
             {
                 _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
                 await DoWorkAsync(stoppingToken);
+                await Task.Delay(60000, stoppingToken);
             }
         }
 
