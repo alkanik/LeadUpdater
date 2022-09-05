@@ -9,6 +9,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddHostedService<Worker>();
+        services.AddHttpClient();
         services.AddScoped<IHttpClientService, HttpClientService>();
     })
     .Build();

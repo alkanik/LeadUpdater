@@ -3,8 +3,9 @@
     public interface IHttpClientService
     {
         Task Execute();
-        Task<List<int>> GetCelebrantsFromDateToNow(DateTime date);
-        Task<List<int>> GetLeadIdsWithNecessaryTransactionsCount(int count);
-        Task<List<int>> GetLeadsIdsWithNecessaryAmountDifference(double amount);
+        Task GetServiceFromYogurtCleaningForTest(CancellationToken token);
+        Task GetCelebrantsFromDateToNow(DateTime fromDate, CancellationToken token);
+        Task GetLeadIdsWithNecessaryTransactionsCount(int transactionsCount, int daysCount, CancellationToken token);
+        Task GetLeadsIdsWithNecessaryAmountDifference(decimal amountDifference, int daysCount, CancellationToken token);
     }
 }
