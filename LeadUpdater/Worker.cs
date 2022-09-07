@@ -16,12 +16,12 @@ namespace LeadUpdater
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
-                await DoWorkAsync(stoppingToken);
+                await StartAsync(stoppingToken);
                 await Task.Delay(60000, stoppingToken);
             }
         }
 
-        private async Task DoWorkAsync(CancellationToken stoppingToken)
+        private async Task StartAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation(
                 $"{nameof(Worker)} is working.");

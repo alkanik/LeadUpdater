@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Net.Http;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LeadUpdater.Business;
@@ -9,7 +11,6 @@ public class HttpClientService : IHttpClientService
     private readonly JsonSerializerOptions _options;
     private readonly CancellationTokenSource _cancellationTokenSource;
 
-
     public HttpClientService(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
@@ -19,83 +20,38 @@ public class HttpClientService : IHttpClientService
 
     public async Task Execute()
     {
-        await GetServiceFromYogurtCleaningForTest(_cancellationTokenSource.Token);
-        //await GetCelebrantsFromDateToNow(new DateTime(2022, 7, 21), _cancellationTokenSource.Token);
-        //await GetLeadIdsWithNecessaryTransactionsCount(42, _cancellationTokenSource.Token);
-        //await GetLeadsIdsWithNecessaryAmountDifference(13000, _cancellationTokenSource.Token);
-        //_cancellationTokenSource.CancelAfter(20000);
+        await GetCelebrantsFromDateToNow(new DateTime(2022, 7, 9), _cancellationTokenSource.Token);
     }
 
 
-    public async Task GetServiceFromYogurtCleaningForTest(CancellationToken token) 
+    public async Task<List<int>> GetCelebrantsFromDateToNow(DateTime fromDate, CancellationToken token)
     {
         var httpClient = _httpClientFactory.CreateClient();
-        try
-        {
-            using (var response = await httpClient.GetAsync("https://piter-education.ru:10042/Services/275", HttpCompletionOption.ResponseHeadersRead, token))
-            {
-                response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-                var service = JsonSerializer.DeserializeAsync<string>(stream, _options);
-            }
-        }
-        catch(OperationCanceledException ocex)
-        {
-            var exceptionMessage = ocex.Message; // logging
-        }
-    }
 
-    public async Task GetCelebrantsFromDateToNow(DateTime fromDate, CancellationToken token)
-    {
-        var httpClient = _httpClientFactory.CreateClient();
         try
         {
-            using (var response = await httpClient.GetAsync("LeadInfo", HttpCompletionOption.ResponseHeadersRead, token))
+            using (var response = await httpClient.GetAsync($"https://piter-education.ru:6010/LeadInfo?fromDate={fromDate.ToString("dd.MM.yyyy")}", HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-                var celebrants = JsonSerializer.DeserializeAsync<List<int>>(stream, _options);
+                var content = await response.Content.ReadAsStreamAsync();
+                var leads = await JsonSerializer.DeserializeAsync<List<int>>(content, _options);
+                return leads;
             }
         }
-        catch (OperationCanceledException ocex)
+        catch (Exception ex)
         {
-            var exceptionMessage = ocex.Message;
+            Console.WriteLine(ex.Message);
+            return new List<int>();
         }
     }
 
     public async Task GetLeadIdsWithNecessaryTransactionsCount(int transactionsCount, int daysCount, CancellationToken token)
     {
-        var httpClient = _httpClientFactory.CreateClient();
-        try
-        {
-            using (var response = await httpClient.GetAsync("LeadStatistics/transactionsCount", HttpCompletionOption.ResponseHeadersRead, token))
-            {
-                response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-                var leads = JsonSerializer.DeserializeAsync<List<int>>(stream, _options);
-            }
-        }
-        catch (OperationCanceledException ocex)
-        {
-            var exceptionMessage = ocex.Message;
-        }
+        throw new NotImplementedException();
     }
 
     public async Task GetLeadsIdsWithNecessaryAmountDifference(decimal amountDifference, int daysCount, CancellationToken token)
     {
-        var httpClient = _httpClientFactory.CreateClient();
-        try
-        {
-            using (var response = await httpClient.GetAsync("LeadStatistics", HttpCompletionOption.ResponseHeadersRead, token))
-            {
-                response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-                var leads = JsonSerializer.DeserializeAsync<List<int>>(stream, _options);
-            }
-        }
-        catch (OperationCanceledException ocex)
-        {
-            var exceptionMessage = ocex.Message;
-        }
+        throw new NotImplementedException();
     }
 }
