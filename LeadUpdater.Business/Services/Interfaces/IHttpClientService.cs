@@ -4,7 +4,7 @@
     {
         Task Execute();
         Task<List<int>> GetCelebrantsFromDateToNow(DateTime fromDate, CancellationToken token);
-        Task GetLeadIdsWithNecessaryTransactionsCount(int transactionsCount, int daysCount, CancellationToken token);
-        Task GetLeadsIdsWithNecessaryAmountDifference(decimal amountDifference, int daysCount, CancellationToken token);
+        Task<List<int>> GetLeadIdsWithNecessaryTransactionsCount(int transactionsCount, int daysCount, CancellationToken token);
+        Task<List<int>> GetLeadsIdsWithNecessaryAmountDifference(decimal amountDifference, int daysCount, CancellationToken token);
     }
 }

@@ -1,5 +1,7 @@
 using LeadUpdater;
 using LeadUpdater.Business;
+using Polly.Extensions.Http;
+using Polly;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options =>
