@@ -28,8 +28,8 @@ namespace LeadUpdater
 
             using (IServiceScope scope = _serviceProvider.CreateScope())
             {
-                IHttpClientService httpClientService =
-                    scope.ServiceProvider.GetRequiredService<IHttpClientService>();
+                IReportingClient httpClientService =
+                    scope.ServiceProvider.GetRequiredService<IReportingClient>();
 
                 await httpClientService.Execute();
             }

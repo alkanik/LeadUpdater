@@ -14,8 +14,4 @@
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.8" />
     <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\LeadUpdater.Business\LeadUpdater.Business.csproj" />
-  </ItemGroup>
 </Project>
