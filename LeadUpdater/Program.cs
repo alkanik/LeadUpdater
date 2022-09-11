@@ -12,6 +12,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHttpClient("Reporting").AddPolicyHandler(
             request => request.Method == HttpMethod.Get ? new ClientPolicy().RetryPolicy : new ClientPolicy().RetryPolicy);
         services.AddScoped<IReportingClient, ReportingClient>();
+        services.AddScoped<IVipStatusService, VipStatusService>();
         services.AddSingleton<ClientPolicy>(new ClientPolicy());
     })
     .Build();

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace LeadUpdater;
 
 public class Worker : BackgroundService
@@ -14,30 +16,19 @@ public class Worker : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
-            await StartAsync(stoppingToken);
-            await Task.Delay(60000, stoppingToken);
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                IReportingClient httpClientService =
+                    scope.ServiceProvider.GetRequiredService<IReportingClient>();
+            }
+
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var vipStatusService = scope.ServiceProvider.GetRequiredService<IVipStatusService>();
+                await vipStatusService.GetVipLeadsIds();
+            }
+
+            await Task.Delay(5000, stoppingToken);
         }
-    }
-
-    private async Task StartAsync(CancellationToken stoppingToken)
-    {
-        _logger.LogInformation(
-            $"{nameof(Worker)} is working.");
-
-        using (IServiceScope scope = _serviceProvider.CreateScope())
-        {
-            IReportingClient httpClientService =
-                scope.ServiceProvider.GetRequiredService<IReportingClient>();
-
-            await httpClientService.Execute();
-        }
-    }
-
-    public override async Task StopAsync(CancellationToken stoppingToken)
-    {
-        _logger.LogInformation(
-            $"{nameof(Worker)} is stopping.");
-
-        await base.StopAsync(stoppingToken);
     }
 }
