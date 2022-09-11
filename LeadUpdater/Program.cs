@@ -9,7 +9,8 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddHostedService<Worker>();
-        services.AddHttpClient();
+        services.AddHttpClient("Reporting").AddPolicyHandler(
+            request => request.Method == HttpMethod.Get ? new ClientPolicy().RetryPolicy : new ClientPolicy().RetryPolicy);
         services.AddScoped<IReportingClient, ReportingClient>();
         services.AddSingleton<ClientPolicy>(new ClientPolicy());
     })

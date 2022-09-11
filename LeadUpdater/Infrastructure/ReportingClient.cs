@@ -27,13 +27,12 @@ public class ReportingClient : IReportingClient
 
     public async Task<List<int>> GetCelebrantsFromDateToNow(DateTime fromDate, CancellationToken token)
     {
-        var httpClient = _httpClientFactory.CreateClient();
+        var httpClient = _httpClientFactory.CreateClient("Reporting");
 
         try
         {
-            using (var response = await _policy.RetryPolicy.ExecuteAsync(
-                () => httpClient.GetAsync($"https://piter-education.ru:6010/LeadInfo?fromDate={fromDate.ToString("dd.MM.yyyy")}",
-                HttpCompletionOption.ResponseHeadersRead, token)))
+            using (var response = await httpClient.GetAsync($"https://piter-education.ru:6010/LeadInfo?fromDate={fromDate.ToString("dd.MM.yyyy")}",
+                HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStreamAsync();
@@ -50,13 +49,12 @@ public class ReportingClient : IReportingClient
 
     public async Task<List<int>> GetLeadIdsWithNecessaryTransactionsCount(int transactionsCount, int daysCount, CancellationToken token)
     {
-        var httpClient = _httpClientFactory.CreateClient();
+        var httpClient = _httpClientFactory.CreateClient("Reporting");
 
         try
         {
-            using (var response = await _policy.RetryPolicy.ExecuteAsync(
-                () => httpClient.GetAsync($"https://piter-education.ru:6010/LeadStatistics{transactionsCount}/{daysCount}/transactions-count",
-                HttpCompletionOption.ResponseHeadersRead, token)))
+            using (var response = await httpClient.GetAsync($"https://piter-education.ru:6010/LeadStatistics/{transactionsCount}/{daysCount}/transactions-count",
+                HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStreamAsync();
@@ -73,13 +71,12 @@ public class ReportingClient : IReportingClient
 
     public async Task<List<int>> GetLeadsIdsWithNecessaryAmountDifference(decimal amountDifference, int daysCount, CancellationToken token)
     {
-        var httpClient = _httpClientFactory.CreateClient();
+        var httpClient = _httpClientFactory.CreateClient("Reporting");
 
         try
         {
-            using (var response = await _policy.RetryPolicy.ExecuteAsync(
-                () => httpClient.GetAsync($"https://piter-education.ru:6010/LeadStatistics/{amountDifference}/{daysCount}/amount-difference",
-                HttpCompletionOption.ResponseHeadersRead, token)))
+            using (var response = await httpClient.GetAsync($"https://piter-education.ru:6010/LeadStatistics/{amountDifference}/{daysCount}/amount-difference",
+                HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStreamAsync();
