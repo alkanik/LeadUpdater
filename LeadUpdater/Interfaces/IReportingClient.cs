@@ -1,10 +1,9 @@
-﻿namespace LeadUpdater.Business
+﻿namespace LeadUpdater;
+
+public interface IReportingClient
 {
-    public interface IReportingClient
-    {
-        Task Execute();
-        Task<List<int>> GetCelebrantsFromDateToNow(DateTime fromDate, CancellationToken token);
-        Task<List<int>> GetLeadIdsWithNecessaryTransactionsCount(int transactionsCount, int daysCount, CancellationToken token);
-        Task<List<int>> GetLeadsIdsWithNecessaryAmountDifference(decimal amountDifference, int daysCount, CancellationToken token);
-    }
+    Task Execute();
+    Task<List<int>> GetCelebrantsFromDateToNow(DateTime fromDate, CancellationToken token);
+    Task<List<int>> GetLeadIdsWithNecessaryTransactionsCount(int transactionsCount, int daysCount, CancellationToken token);
+    Task<List<int>> GetLeadsIdsWithNecessaryAmountDifference(decimal amountDifference, int daysCount, CancellationToken token);
 }

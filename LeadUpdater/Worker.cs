@@ -1,46 +1,43 @@
-using LeadUpdater.Business;
+namespace LeadUpdater;
 
-namespace LeadUpdater
+public class Worker : BackgroundService
 {
-    public class Worker : BackgroundService
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<Worker> _logger;
+
+    public Worker(IServiceProvider serviceProvider,
+    ILogger<Worker> logger) =>
+    (_serviceProvider, _logger) = (serviceProvider, logger);
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<Worker> _logger;
-
-        public Worker(IServiceProvider serviceProvider,
-        ILogger<Worker> logger) =>
-        (_serviceProvider, _logger) = (serviceProvider, logger);
-
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        while (!stoppingToken.IsCancellationRequested)
         {
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
-                await StartAsync(stoppingToken);
-                await Task.Delay(60000, stoppingToken);
-            }
+            _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
+            await StartAsync(stoppingToken);
+            await Task.Delay(60000, stoppingToken);
         }
+    }
 
-        private async Task StartAsync(CancellationToken stoppingToken)
+    private async Task StartAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation(
+            $"{nameof(Worker)} is working.");
+
+        using (IServiceScope scope = _serviceProvider.CreateScope())
         {
-            _logger.LogInformation(
-                $"{nameof(Worker)} is working.");
+            IReportingClient httpClientService =
+                scope.ServiceProvider.GetRequiredService<IReportingClient>();
 
-            using (IServiceScope scope = _serviceProvider.CreateScope())
-            {
-                IReportingClient httpClientService =
-                    scope.ServiceProvider.GetRequiredService<IReportingClient>();
-
-                await httpClientService.Execute();
-            }
+            await httpClientService.Execute();
         }
+    }
 
-        public override async Task StopAsync(CancellationToken stoppingToken)
-        {
-            _logger.LogInformation(
-                $"{nameof(Worker)} is stopping.");
+    public override async Task StopAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation(
+            $"{nameof(Worker)} is stopping.");
 
-            await base.StopAsync(stoppingToken);
-        }
+        await base.StopAsync(stoppingToken);
     }
 }

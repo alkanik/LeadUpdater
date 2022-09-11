@@ -1,8 +1,5 @@
 using LeadUpdater;
-using LeadUpdater.Business;
-using Polly.Extensions.Http;
-using Polly;
-using Polly.Retry;
+using LeadUpdater.Policies;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options =>
@@ -14,6 +11,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHostedService<Worker>();
         services.AddHttpClient();
         services.AddScoped<IReportingClient, ReportingClient>();
+        services.AddSingleton<ClientPolicy>(new ClientPolicy());
     })
     .Build();
 await host.RunAsync();
