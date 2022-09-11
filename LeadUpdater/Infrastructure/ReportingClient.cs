@@ -1,4 +1,5 @@
 ﻿using LeadUpdater.Policies;
+using LeadUpdater.Infrastructure;
 using System.Text.Json;
 
 namespace LeadUpdater;
@@ -21,8 +22,8 @@ public class ReportingClient : IReportingClient
     public async Task Execute()
     {
         await GetCelebrantsFromDateToNow(new DateTime(2022, 7, 9), _cancellationTokenSource.Token);
-        await GetLeadIdsWithNecessaryTransactionsCount(42, 60, _cancellationTokenSource.Token);
-        await GetLeadsIdsWithNecessaryAmountDifference(13000, 30, _cancellationTokenSource.Token);
+        await GetLeadIdsWithNecessaryTransactionsCount(Constant.TransactionsCount, Constant.TrasactionDaysCount, _cancellationTokenSource.Token);
+        await GetLeadsIdsWithNecessaryAmountDifference(Constant.AmountDifference, Constant.AmountDifferenceDaysCount, _cancellationTokenSource.Token);
     }
 
     public async Task<List<int>> GetCelebrantsFromDateToNow(DateTime fromDate, CancellationToken token)
@@ -31,7 +32,7 @@ public class ReportingClient : IReportingClient
 
         try
         {
-            using (var response = await httpClient.GetAsync($"https://piter-education.ru:6010/LeadInfo?fromDate={fromDate.ToString("dd.MM.yyyy")}",
+            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}LeadInfo?fromDate={fromDate.ToString("dd.MM.yyyy")}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -53,7 +54,7 @@ public class ReportingClient : IReportingClient
 
         try
         {
-            using (var response = await httpClient.GetAsync($"https://piter-education.ru:6010/LeadStatistics/{transactionsCount}/{daysCount}/transactions-count",
+            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}LeadStatistics/{transactionsCount}/{daysCount}/transactions-count",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -75,7 +76,7 @@ public class ReportingClient : IReportingClient
 
         try
         {
-            using (var response = await httpClient.GetAsync($"https://piter-education.ru:6010/LeadStatistics/{amountDifference}/{daysCount}/amount-difference",
+            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}LeadStatistics/{amountDifference}/{daysCount}/amount-difference",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
