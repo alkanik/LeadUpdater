@@ -21,7 +21,7 @@ public class ReportingClient : IReportingClient
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}LeadInfo?fromDate={fromDate.ToString("dd.MM.yyyy")}",
+            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadInfo}?fromDate={fromDate.ToString("dd.MM.yyyy")}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -43,7 +43,7 @@ public class ReportingClient : IReportingClient
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}LeadStatistics/{transactionsCount}/{daysCount}/transactions-count",
+            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadStatistics}/{transactionsCount}/{daysCount}/transactions-count",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -65,7 +65,7 @@ public class ReportingClient : IReportingClient
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}LeadStatistics/{amountDifference}/{daysCount}/amount-difference",
+            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadStatistics}/{amountDifference}/{daysCount}/amount-difference",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
