@@ -1,5 +1,5 @@
 using LeadUpdater;
-using LeadUpdater.Business;
+using LeadUpdater.Policies;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options =>
@@ -9,7 +9,11 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddHostedService<Worker>();
-        services.AddScoped<IHttpClientService, HttpClientService>();
+        services.AddHttpClient("Reporting").AddPolicyHandler(
+            request => request.Method == HttpMethod.Get ? new ClientPolicy().RetryPolicy : new ClientPolicy().RetryPolicy);
+        services.AddScoped<IReportingClient, ReportingClient>();
+        services.AddScoped<IVipStatusService, VipStatusService>();
+        services.AddSingleton<ClientPolicy>(new ClientPolicy());
     })
     .Build();
 await host.RunAsync();
