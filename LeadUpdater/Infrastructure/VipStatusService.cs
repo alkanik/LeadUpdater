@@ -17,7 +17,7 @@ public class VipStatusService : IVipStatusService
 
     public async Task<List<int>> GetVipLeadsIds()
     {
-        var vipLeadsIds = await _reportingClient.GetCelebrantsFromDateToNow(new DateTime(2022, 7, 9), _token.Token);
+        var vipLeadsIds = await _reportingClient.GetCelebrantsFromDateToNow(Constant.CelebrantsDaysCount, _token.Token);
         var leadsWithTransactions = await _reportingClient.GetLeadIdsWithNecessaryTransactionsCount(
             Constant.TransactionsCount,
             Constant.TrasactionDaysCount,

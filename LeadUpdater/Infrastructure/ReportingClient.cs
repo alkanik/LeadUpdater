@@ -15,13 +15,13 @@ public class ReportingClient : IReportingClient
         _options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
     }
 
-    public async Task<List<int>> GetCelebrantsFromDateToNow(DateTime fromDate, CancellationToken token)
+    public async Task<List<int>> GetCelebrantsFromDateToNow(int daysCount, CancellationToken token)
     {
         var httpClient = _httpClientFactory.CreateClient("Reporting");
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadInfo}?fromDate={fromDate.ToString("dd.MM.yyyy")}",
+            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadInfo}?{daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
