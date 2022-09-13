@@ -1,4 +1,4 @@
-﻿namespace LeadUpdater.RabbitMQ.Producer
+﻿namespace LeadUpdater.Interfaces
 {
     public interface ILeadIdsProducer
     {
