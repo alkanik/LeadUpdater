@@ -1,7 +1,9 @@
-﻿namespace LeadUpdater
+﻿using IncredibleBackendContracts.Events;
+
+namespace LeadUpdater
 {
     public interface IVipStatusService
     {
-        Task<List<int>> GetVipLeadsIds();
+        Task<LeadsRoleUpdatedEvent> GetVipLeadsIds();
     }
 }

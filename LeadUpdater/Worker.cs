@@ -1,5 +1,6 @@
 using Cronos;
 using LeadUpdater.Infrastructure;
+using LeadUpdater.Interfaces;
 using NLog.Extensions.Logging;
 
 namespace LeadUpdater;
@@ -27,22 +28,17 @@ public class Worker : BackgroundService
                     scope.ServiceProvider.GetRequiredService<IScheduler>();
                 var delayTimeSpan = scheduler.GetDelayTimeSpan();
                 await Task.Delay(delayTimeSpan, stoppingToken);
-            }
-            //var now = DateTime.UtcNow;
-            //var nextUtc = _cronJob.GetNextOccurrence(now);
-            //var delayTimeSpan = (nextUtc.Value - now);
-            //await Task.Delay(delayTimeSpan, stoppingToken);
 
-            using (var scope = _serviceProvider.CreateScope())
-            {
                 IReportingClient httpClientService =
                     scope.ServiceProvider.GetRequiredService<IReportingClient>();
-            }
-
-            using (var scope = _serviceProvider.CreateScope())
-            {
+            
                 var vipStatusService = scope.ServiceProvider.GetRequiredService<IVipStatusService>();
-                await vipStatusService.GetVipLeadsIds();
+                var vipLeadsIds = await vipStatusService.GetVipLeadsIds();
+
+                ILeadIdsProducer leadIdsProducer = 
+                    scope.ServiceProvider.GetRequiredService<ILeadIdsProducer>();
+
+                leadIdsProducer.SendMessage(vipLeadsIds);
             }
         }
     }
