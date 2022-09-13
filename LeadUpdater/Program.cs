@@ -22,6 +22,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             request => request.Method == HttpMethod.Get ? new ClientPolicy().RetryPolicy : new ClientPolicy().RetryPolicy);
         services.AddScoped<IReportingClient, ReportingClient>();
         services.AddScoped<IVipStatusService, VipStatusService>();
+        services.AddScoped<IScheduler, Scheduler>();
         services.AddSingleton<ClientPolicy>(new ClientPolicy());
     })
     .Build();
