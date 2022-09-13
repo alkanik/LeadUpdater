@@ -3,6 +3,9 @@ using LeadUpdater.Policies;
 using NLog.Extensions.Logging;
 using NLog.Web;
 using Polly;
+using MassTransit;
+using IncredibleBackendContracts.Events;
+using IncredibleBackendContracts.Constants;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options =>
@@ -24,6 +27,10 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddScoped<IVipStatusService, VipStatusService>();
         services.AddScoped<IScheduler, Scheduler>();
         services.AddSingleton<ClientPolicy>(new ClientPolicy());
+        services.AddMassTransit(x =>
+        {
+            x.UsingRabbitMq();
+        });
     })
     .Build();
 await host.RunAsync();
