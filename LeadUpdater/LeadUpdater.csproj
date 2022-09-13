@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="C:\Users\Alla Raiskaya\.nuget\packages\nlog.config\4.7.15\contentFiles\any\any\NLog.config" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Cronos" Version="0.7.1" />
     <PackageReference Include="IncredibleBackend" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
@@ -15,6 +19,8 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.8" />
     <PackageReference Include="NLog" Version="5.0.4" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.0.4" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="5.1.4" />
     <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
   </ItemGroup>
 </Project>

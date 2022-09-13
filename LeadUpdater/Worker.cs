@@ -1,5 +1,6 @@
 using Cronos;
 using LeadUpdater.Infrastructure;
+using NLog.Extensions.Logging;
 
 namespace LeadUpdater;
 
