@@ -1,4 +1,5 @@
-﻿using LeadUpdater.Infrastructure;
+﻿using IncredibleBackendContracts.Events;
+using LeadUpdater.Infrastructure;
 using System.Dynamic;
 using System.Threading;
 
@@ -15,7 +16,7 @@ public class VipStatusService : IVipStatusService
         _token = new CancellationTokenSource(); ;
     }
 
-    public async Task<List<int>> GetVipLeadsIds()
+    public async Task<LeadsRoleUpdatedEvent> GetVipLeadsIds()
     {
         var vipLeadsIds = _reportingClient.GetCelebrantsFromDateToNow(Constant.CelebrantsDaysCount, _token.Token);
         var leadsWithTransactions = _reportingClient.GetLeadIdsWithNecessaryTransactionsCount(
@@ -34,6 +35,6 @@ public class VipStatusService : IVipStatusService
         vipLeadsIds.Result.AddRange(leadsWithAmount.Result);
         vipLeadsIds.Result.Distinct();
 
-        return vipLeadsIds.Result;
+        return new LeadsRoleUpdatedEvent(vipLeadsIds.Result);
     }
 }
