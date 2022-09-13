@@ -17,21 +17,23 @@ public class VipStatusService : IVipStatusService
 
     public async Task<List<int>> GetVipLeadsIds()
     {
-        var vipLeadsIds = await _reportingClient.GetCelebrantsFromDateToNow(Constant.CelebrantsDaysCount, _token.Token);
-        var leadsWithTransactions = await _reportingClient.GetLeadIdsWithNecessaryTransactionsCount(
+        var vipLeadsIds = _reportingClient.GetCelebrantsFromDateToNow(Constant.CelebrantsDaysCount, _token.Token);
+        var leadsWithTransactions = _reportingClient.GetLeadIdsWithNecessaryTransactionsCount(
             Constant.TransactionsCount,
             Constant.TrasactionDaysCount,
             _token.Token);
 
-        var leadsWithAmount = await _reportingClient.GetLeadsIdsWithNecessaryAmountDifference(
+        var leadsWithAmount = _reportingClient.GetLeadsIdsWithNecessaryAmountDifference(
             Constant.AmountDifference,
             Constant.AmountDifferenceDaysCount,
             _token.Token);
 
-        vipLeadsIds.AddRange(leadsWithTransactions);
-        vipLeadsIds.AddRange(leadsWithAmount);
-        vipLeadsIds.Distinct();
+        await Task.WhenAll(vipLeadsIds, leadsWithTransactions, leadsWithTransactions);
 
-        return vipLeadsIds;
+        vipLeadsIds.Result.AddRange(leadsWithTransactions.Result);
+        vipLeadsIds.Result.AddRange(leadsWithAmount.Result);
+        vipLeadsIds.Result.Distinct();
+
+        return vipLeadsIds.Result;
     }
 }
