@@ -22,26 +22,15 @@ public class VipStatusService : IVipStatusService
             Constant.TransactionsCount,
             Constant.TrasactionDaysCount,
             _token.Token);
+
         var leadsWithAmount = await _reportingClient.GetLeadsIdsWithNecessaryAmountDifference(
             Constant.AmountDifference,
             Constant.AmountDifferenceDaysCount,
             _token.Token);
 
-        foreach (var lead in leadsWithTransactions)
-        {
-            if (!vipLeadsIds.Contains(lead))
-            {
-                vipLeadsIds.Add(lead);
-            }
-        }
-
-        foreach (var lead in leadsWithAmount)
-        {
-            if (!vipLeadsIds.Contains(lead))
-            {
-                vipLeadsIds.Add(lead);
-            }
-        }
+        vipLeadsIds.AddRange(leadsWithTransactions);
+        vipLeadsIds.AddRange(leadsWithAmount);
+        vipLeadsIds.Distinct();
 
         return vipLeadsIds;
     }
