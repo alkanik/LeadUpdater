@@ -6,7 +6,7 @@ using Polly;
 using MassTransit;
 using IncredibleBackendContracts.Events;
 using IncredibleBackendContracts.Constants;
-using LeadUpdater.RabbitMQ.Producer;
+using LeadUpdater.Producers;
 using LeadUpdater.Interfaces;
 using IncredibleBackend.Messaging;
 using IncredibleBackendContracts.Abstractions;
@@ -39,7 +39,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             null,
             (cfg) =>
             {
-               cfg.RegisterProducer<LeadsRoleUpdatedEvent>("LeadsRoleUpdateCrm");
+               cfg.RegisterProducer<LeadsRoleUpdatedEvent>(IncredibleBackendContracts.Constants.RabbitEndpoint.LeadsRoleUpdateReporting);
             });
     })
     .Build();

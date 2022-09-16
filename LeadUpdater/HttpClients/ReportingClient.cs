@@ -8,11 +8,13 @@ public class ReportingClient : IReportingClient
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly JsonSerializerOptions _options;
+    private readonly ILogger<ReportingClient> _logger;
 
-    public ReportingClient(IHttpClientFactory httpClientFactory)
+    public ReportingClient(IHttpClientFactory httpClientFactory, ILogger<ReportingClient> logger)
     {
         _httpClientFactory = httpClientFactory;
         _options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        _logger = logger;
     }
 
     public async Task<List<int>> GetCelebrantsFromDateToNow(int daysCount, CancellationToken token)
@@ -21,7 +23,7 @@ public class ReportingClient : IReportingClient
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadInfo}?{daysCount}",
+            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadInfoPath}?{daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -32,7 +34,7 @@ public class ReportingClient : IReportingClient
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.LogInformation($"{ex.Message}");
             return new List<int>();
         }
     }
@@ -43,7 +45,8 @@ public class ReportingClient : IReportingClient
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadStatistics}/{transactionsCount}/{daysCount}/transactions-count",
+            using (var response = await httpClient
+                .GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadStatisticsPath}{Constant.LSTransactionPath}transactionsCount={transactionsCount}&daysCount={daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -54,7 +57,7 @@ public class ReportingClient : IReportingClient
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.LogInformation($"{ex.Message}");
             return new List<int>();
         }
     }
@@ -65,7 +68,8 @@ public class ReportingClient : IReportingClient
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadStatistics}/{amountDifference}/{daysCount}/amount-difference",
+            using (var response = await httpClient
+                .GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadStatisticsPath}{Constant.LSAmountPath}amountDifference={amountDifference}&daysCount={daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -76,7 +80,7 @@ public class ReportingClient : IReportingClient
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.LogInformation($"{ex.Message}");
             return new List<int>();
         }
     }

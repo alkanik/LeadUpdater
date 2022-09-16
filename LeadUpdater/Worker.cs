@@ -18,15 +18,17 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
+        
         while (!stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
 
             using (var scope = _serviceProvider.CreateScope())
             {
                 IScheduler scheduler =
                     scope.ServiceProvider.GetRequiredService<IScheduler>();
                 var delayTimeSpan = scheduler.GetDelayTimeSpan();
+                _logger.LogInformation("LeadUpdater will start in : {time}", (DateTimeOffset.Now + delayTimeSpan));
                 await Task.Delay(delayTimeSpan, stoppingToken);
 
                 IReportingClient httpClientService =
