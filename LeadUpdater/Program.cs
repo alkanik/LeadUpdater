@@ -39,7 +39,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             null,
             (cfg) =>
             {
-               cfg.RegisterProducer<LeadsRoleUpdatedEvent>(IncredibleBackendContracts.Constants.RabbitEndpoint.LeadsRoleUpdateReporting);
+               cfg.RegisterProducer<LeadsRoleUpdatedEvent>(RabbitEndpoint.LeadsRoleUpdateCrm);
             });
     })
     .Build();
