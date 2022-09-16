@@ -8,6 +8,8 @@ using IncredibleBackendContracts.Events;
 using IncredibleBackendContracts.Constants;
 using LeadUpdater.RabbitMQ.Producer;
 using LeadUpdater.Interfaces;
+using IncredibleBackend.Messaging;
+using IncredibleBackendContracts.Abstractions;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options =>
@@ -30,10 +32,15 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddScoped<IScheduler, Scheduler>();
         services.AddScoped<ILeadIdsProducer, LeadIdsProducer>();
         services.AddSingleton<ClientPolicy>(new ClientPolicy());
-        services.AddMassTransit(x =>
-        {
-            x.UsingRabbitMq();
-        });
+
+        services.AddScoped<MessageProducer>();
+        services.RegisterConsumersAndProducers(
+            null, 
+            null,
+            (cfg) =>
+            {
+               cfg.RegisterProducer<LeadsRoleUpdatedEvent>("LeadsRoleUpdateCrm");
+            });
     })
     .Build();
 await host.RunAsync();

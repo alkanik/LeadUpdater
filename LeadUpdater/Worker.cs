@@ -38,7 +38,9 @@ public class Worker : BackgroundService
                 ILeadIdsProducer leadIdsProducer = 
                     scope.ServiceProvider.GetRequiredService<ILeadIdsProducer>();
 
-                leadIdsProducer.SendMessage(vipLeadsIds);
+
+
+                await leadIdsProducer.SendMessage(vipLeadsIds);
             }
         }
     }
