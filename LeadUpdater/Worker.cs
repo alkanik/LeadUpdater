@@ -18,9 +18,10 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
+        
         while (!stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
 
             using (var scope = _serviceProvider.CreateScope())
             {
