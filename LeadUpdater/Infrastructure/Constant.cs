@@ -15,5 +15,4 @@ public class Constant
     public const int TimeDelay = 5000;
     public const string CronExpressionTest = "0 * * ? * *";
     public const string CronExpression = "0 0 23 ? * *";
-    public const string CronExpressionTest2 = "0 5,6,7,8,9,10 0,12 ? * * *";
 }
