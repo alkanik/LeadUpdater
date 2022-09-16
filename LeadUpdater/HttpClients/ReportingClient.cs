@@ -21,7 +21,7 @@ public class ReportingClient : IReportingClient
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadInfo}?{daysCount}",
+            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadInfoPath}?{daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -43,7 +43,8 @@ public class ReportingClient : IReportingClient
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadStatistics}/{transactionsCount}/{daysCount}/transactions-count",
+            using (var response = await httpClient
+                .GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadStatisticsPath}{Constant.LSTransactionPath}transactionsCount={transactionsCount}&daysCount={daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -65,7 +66,8 @@ public class ReportingClient : IReportingClient
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadStatistics}/{amountDifference}/{daysCount}/amount-difference",
+            using (var response = await httpClient
+                .GetAsync($"{Constant.ReportingBaseAddress}{Constant.LeadStatisticsPath}{Constant.LSAmountPath}amountDifference={amountDifference}{daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
