@@ -1,26 +1,29 @@
+using IncredibleBackend.Messaging;
+using IncredibleBackendContracts.Constants;
+using IncredibleBackendContracts.Events;
 using LeadUpdater;
+using LeadUpdater.Interfaces;
 using LeadUpdater.Policies;
+using LeadUpdater.Producers;
+using Microsoft.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using NLog.Web;
-using Polly;
-using MassTransit;
-using IncredibleBackendContracts.Events;
-using IncredibleBackendContracts.Constants;
-using LeadUpdater.Producers;
-using LeadUpdater.Interfaces;
-using IncredibleBackend.Messaging;
-using IncredibleBackendContracts.Abstractions;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options =>
     {
         options.ServiceName = "LeadUpdater";
     })
+    .ConfigureAppConfiguration(config =>
+    {
+        config.AddEnvironmentVariables();
+    })
     .ConfigureLogging((hostContext, logging) =>
     {
         logging.ClearProviders();
-        logging.SetMinimumLevel(LogLevel.Trace);
-        logging.AddNLog(hostContext.Configuration, new NLogProviderOptions() { LoggingConfigurationSectionName = "NLog" });
+        logging.SetMinimumLevel(LogLevel.Information);
+        logging.ConfigureNLog("nlog.config");
+        //logging.AddNLog();
     })
     .ConfigureServices(services =>
     {

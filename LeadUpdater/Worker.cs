@@ -28,7 +28,7 @@ public class Worker : BackgroundService
                 IScheduler scheduler =
                     scope.ServiceProvider.GetRequiredService<IScheduler>();
                 var delayTimeSpan = scheduler.GetDelayTimeSpan();
-                _logger.LogInformation("LeadUpdater will start in : {time}", (DateTimeOffset.Now + delayTimeSpan));
+                _logger.LogInformation("LeadUpdater next start will be at : {time}", (DateTimeOffset.Now + delayTimeSpan));
                 await Task.Delay(delayTimeSpan, stoppingToken);
 
                 IReportingClient httpClientService =

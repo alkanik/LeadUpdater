@@ -14,5 +14,5 @@ public class Constant
     public const int AmountDifferenceDaysCount = 30;
     public const int TimeDelay = 5000;
     public const string CronExpressionTest = "0 * * ? * *";
-    public const string CronExpression = "0 0 23 ? * *";
+    public const string CronExpression = "0 0 23 ? * *"; //0 0 * ? * * *
 }

@@ -18,7 +18,7 @@ public class LeadIdsProducer : ILeadIdsProducer
     {
         try
         {
-            await _messageProducer.ProduceMessage(message, "Send Lead Ids to Queue");
+            await _messageProducer.ProduceMessage(message, "Sent Lead's Ids to Queue");
         }
         catch (Exception ex)
         {
