@@ -1,15 +1,19 @@
+using IncredibleBackend.Messaging;
+using IncredibleBackendContracts.Constants;
+using IncredibleBackendContracts.Events;
 using LeadUpdater;
+using LeadUpdater.Infrastructure;
+using LeadUpdater.Interfaces;
 using LeadUpdater.Policies;
+using LeadUpdater.Producers;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
+using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
-using Polly;
-using MassTransit;
-using IncredibleBackendContracts.Events;
-using IncredibleBackendContracts.Constants;
-using LeadUpdater.Producers;
-using LeadUpdater.Interfaces;
-using IncredibleBackend.Messaging;
-using IncredibleBackendContracts.Abstractions;
+
+var builder = WebApplication.CreateBuilder(args);
+LogManager.Configuration.Variables[$"{builder.Environment: LOG_DIRECTORY}"] = "Logs";
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options =>
@@ -19,8 +23,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureLogging((hostContext, logging) =>
     {
         logging.ClearProviders();
-        logging.SetMinimumLevel(LogLevel.Trace);
-        logging.AddNLog(hostContext.Configuration, new NLogProviderOptions() { LoggingConfigurationSectionName = "NLog" });
+        logging.AddNLog();
     })
     .ConfigureServices(services =>
     {
@@ -41,6 +44,8 @@ IHost host = Host.CreateDefaultBuilder(args)
             {
                cfg.RegisterProducer<LeadsRoleUpdatedEvent>(RabbitEndpoint.LeadsRoleUpdateCrm);
             });
+        services.Configure<VipStatusConfiguration>(builder.Configuration);
     })
     .Build();
+
 await host.RunAsync();
