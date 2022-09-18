@@ -42,8 +42,8 @@ public class VipStatusService : IVipStatusService
 
         vipLeadsIds.Result.AddRange(leadsWithTransactions.Result);
         vipLeadsIds.Result.AddRange(leadsWithAmount.Result);
-        vipLeadsIds.Result.Distinct();
+        var vipIds = vipLeadsIds.Result.Distinct().ToList();
 
-        return new LeadsRoleUpdatedEvent(vipLeadsIds.Result);
+        return new LeadsRoleUpdatedEvent(vipIds);
     }
 }
