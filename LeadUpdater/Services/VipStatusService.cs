@@ -16,7 +16,7 @@ public class VipStatusService : IVipStatusService
     public VipStatusService(IReportingClient reportingClient, ILogger<VipStatusService> logger, IOptions<VipStatusConfiguration> statusConfig)
     {
         _reportingClient = reportingClient;
-        _token = new CancellationTokenSource(); ;
+        _token = new CancellationTokenSource();
         _logger = logger;
         _statusConfig = statusConfig.Value;
     }
