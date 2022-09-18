@@ -2,28 +2,28 @@ using IncredibleBackend.Messaging;
 using IncredibleBackendContracts.Constants;
 using IncredibleBackendContracts.Events;
 using LeadUpdater;
+using LeadUpdater.Infrastructure;
 using LeadUpdater.Interfaces;
 using LeadUpdater.Policies;
 using LeadUpdater.Producers;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
+using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
+
+var builder = WebApplication.CreateBuilder(args);
+LogManager.Configuration.Variables[$"{builder.Environment: LOG_DIRECTORY}"] = "Logs";
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options =>
     {
         options.ServiceName = "LeadUpdater";
     })
-    .ConfigureAppConfiguration(config =>
-    {
-        config.AddEnvironmentVariables();
-    })
     .ConfigureLogging((hostContext, logging) =>
     {
         logging.ClearProviders();
-        logging.SetMinimumLevel(LogLevel.Information);
-        logging.ConfigureNLog("nlog.config");
-        //logging.AddNLog();
+        logging.AddNLog();
     })
     .ConfigureServices(services =>
     {
@@ -44,6 +44,8 @@ IHost host = Host.CreateDefaultBuilder(args)
             {
                cfg.RegisterProducer<LeadsRoleUpdatedEvent>(RabbitEndpoint.LeadsRoleUpdateCrm);
             });
+        services.Configure<VipStatusConfiguration>(builder.Configuration);
     })
     .Build();
+
 await host.RunAsync();
