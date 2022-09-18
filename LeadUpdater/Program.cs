@@ -1,5 +1,4 @@
 using IncredibleBackend.Messaging;
-using IncredibleBackend.Messaging.Extentions;
 using IncredibleBackendContracts.Constants;
 using IncredibleBackendContracts.Events;
 using LeadUpdater;
