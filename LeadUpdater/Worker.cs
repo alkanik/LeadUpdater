@@ -2,7 +2,6 @@ using Cronos;
 using IncredibleBackend.Messaging;
 using IncredibleBackend.Messaging.Interfaces;
 using LeadUpdater.Infrastructure;
-using LeadUpdater.Interfaces;
 using NLog.Extensions.Logging;
 
 namespace LeadUpdater;
@@ -40,9 +39,6 @@ public class Worker : BackgroundService
             
                 var vipStatusService = scope.ServiceProvider.GetRequiredService<IVipStatusService>();
                 var vipLeadsIds = await vipStatusService.GetVipLeadsIds();
-
-                ILeadIdsProducer leadIdsProducer = 
-                    scope.ServiceProvider.GetRequiredService<ILeadIdsProducer>();
 
                 await _messageProducer.ProduceMessage(vipLeadsIds, "Sent Lead's Ids to Queue");
             }
