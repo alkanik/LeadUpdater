@@ -1,5 +1,6 @@
 using Cronos;
 using LeadUpdater.Infrastructure;
+using LeadUpdater.Interfaces;
 using NLog.Extensions.Logging;
 
 namespace LeadUpdater;
@@ -17,32 +18,31 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
+        
         while (!stoppingToken.IsCancellationRequested)
         {
-            _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
 
             using (var scope = _serviceProvider.CreateScope())
             {
                 IScheduler scheduler =
                     scope.ServiceProvider.GetRequiredService<IScheduler>();
                 var delayTimeSpan = scheduler.GetDelayTimeSpan();
+                _logger.LogInformation("LeadUpdater next start will be at : {time}", (DateTimeOffset.Now + delayTimeSpan));
                 await Task.Delay(delayTimeSpan, stoppingToken);
-            }
-            //var now = DateTime.UtcNow;
-            //var nextUtc = _cronJob.GetNextOccurrence(now);
-            //var delayTimeSpan = (nextUtc.Value - now);
-            //await Task.Delay(delayTimeSpan, stoppingToken);
 
-            using (var scope = _serviceProvider.CreateScope())
-            {
                 IReportingClient httpClientService =
                     scope.ServiceProvider.GetRequiredService<IReportingClient>();
-            }
-
-            using (var scope = _serviceProvider.CreateScope())
-            {
+            
                 var vipStatusService = scope.ServiceProvider.GetRequiredService<IVipStatusService>();
-                await vipStatusService.GetVipLeadsIds();
+                var vipLeadsIds = await vipStatusService.GetVipLeadsIds();
+
+                ILeadIdsProducer leadIdsProducer = 
+                    scope.ServiceProvider.GetRequiredService<ILeadIdsProducer>();
+
+
+
+                await leadIdsProducer.SendMessage(vipLeadsIds);
             }
         }
     }

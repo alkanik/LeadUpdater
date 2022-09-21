@@ -5,6 +5,11 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeadUpdater", "LeadUpdater\LeadUpdater.csproj", "{54A06774-095C-4633-B2C5-31544338635B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeadUpdater.Tests", "LeadUpdater.Tests\LeadUpdater.Tests.csproj", "{C19287EF-3252-4B40-A47D-B30225331A53}"
+	ProjectSection(ProjectDependencies) = postProject
+		{54A06774-095C-4633-B2C5-31544338635B} = {54A06774-095C-4633-B2C5-31544338635B}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +20,10 @@ Global
 		{54A06774-095C-4633-B2C5-31544338635B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{54A06774-095C-4633-B2C5-31544338635B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{54A06774-095C-4633-B2C5-31544338635B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C19287EF-3252-4B40-A47D-B30225331A53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C19287EF-3252-4B40-A47D-B30225331A53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C19287EF-3252-4B40-A47D-B30225331A53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C19287EF-3252-4B40-A47D-B30225331A53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
