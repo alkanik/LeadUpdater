@@ -9,7 +9,7 @@ public class Scheduler : IScheduler
 
     public Scheduler()
     {
-        _cronJob = CronExpression.Parse(Constant.CronExpression, CronFormat.IncludeSeconds); ;
+        _cronJob = CronExpression.Parse(Constant.CronExpressionTest, CronFormat.IncludeSeconds); ;
     }
 
     public TimeSpan GetDelayTimeSpan()
