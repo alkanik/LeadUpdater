@@ -13,24 +13,24 @@ public class ReportingClient : IReportingClient
     private readonly JsonSerializerOptions _options;
     private readonly ILogger<ReportingClient> _logger;
     private readonly VipStatusConfiguration _statusConfig;
-    private readonly IMessageProducer _messageProducer;
 
-    public ReportingClient(IHttpClientFactory httpClientFactory, ILogger<ReportingClient> logger, IOptions<VipStatusConfiguration> statusConfig, IMessageProducer messageProducer)
+    public ReportingClient(IHttpClientFactory httpClientFactory, 
+        ILogger<ReportingClient> logger, 
+        IOptions<VipStatusConfiguration> statusConfig)
     {
         _httpClientFactory = httpClientFactory;
         _options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         _logger = logger;
         _statusConfig = statusConfig.Value;
-        _messageProducer = messageProducer;
     }
 
-    public async Task<List<int>> GetCelebrantsFromDateToNow(int daysCount, CancellationToken token)
+    public async Task<List<int>?> GetCelebrantsFromDateToNow(int daysCount, CancellationToken token)
     {
         var httpClient = _httpClientFactory.CreateClient("Reporting");
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadInfoPath}{daysCount}",
+            using (var response = await httpClient.GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadInfoPath}?{daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -41,19 +41,12 @@ public class ReportingClient : IReportingClient
         }
         catch (Exception ex)
         {
-            var message = new EmailEvent() 
-            { 
-                Email = _statusConfig.ADMIN_EMAIL, 
-                Subject = "Lead Updater couldn't receive leads from Reporting", 
-                Body = $"{ex.Message}\n {DateTime.Now}" 
-            };
-
-            _messageProducer.ProduceMessage<EmailEvent>(message, $"{ex.Message}");
-            throw;
+            _logger.LogInformation($"{ex.Message}");
+            return null;
         }
     }
 
-    public async Task<List<int>> GetLeadIdsWithNecessaryTransactionsCount(int transactionsCount, int daysCount, CancellationToken token)
+    public async Task<List<int>?> GetLeadIdsWithNecessaryTransactionsCount(int transactionsCount, int daysCount, CancellationToken token)
     {
         var httpClient = _httpClientFactory.CreateClient("Reporting");
 
@@ -72,11 +65,11 @@ public class ReportingClient : IReportingClient
         catch (Exception ex)
         {
             _logger.LogInformation($"{ex.Message}");
-            return new List<int>();
+            return null;
         }
     }
 
-    public async Task<List<int>> GetLeadsIdsWithNecessaryAmountDifference(decimal amountDifference, int daysCount, CancellationToken token)
+    public async Task<List<int>?> GetLeadsIdsWithNecessaryAmountDifference(decimal amountDifference, int daysCount, CancellationToken token)
     {
         var httpClient = _httpClientFactory.CreateClient("Reporting");
 
@@ -95,7 +88,7 @@ public class ReportingClient : IReportingClient
         catch (Exception ex)
         {
             _logger.LogInformation($"{ex.Message}");
-            return new List<int>();
+            return null;
         }
     }
 }

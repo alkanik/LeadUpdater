@@ -30,17 +30,17 @@ public class Worker : BackgroundService
             {
                 IScheduler scheduler =
                     scope.ServiceProvider.GetRequiredService<IScheduler>();
+
                 var delayTimeSpan = scheduler.GetDelayTimeSpan();
-                _logger.LogInformation("LeadUpdater next start will be at : {time}", (DateTimeOffset.Now + delayTimeSpan));
+
+                _logger.LogInformation("Next update will be at : {time}", (DateTimeOffset.Now + delayTimeSpan));
                 await Task.Delay(delayTimeSpan, stoppingToken);
 
                 IReportingClient httpClientService =
                     scope.ServiceProvider.GetRequiredService<IReportingClient>();
             
                 var vipStatusService = scope.ServiceProvider.GetRequiredService<IVipStatusService>();
-                var vipLeadsIds = await vipStatusService.GetVipLeadsIds();
-
-                await _messageProducer.ProduceMessage(vipLeadsIds, "Sent Lead's Ids to Queue");
+                await vipStatusService.GetVipLeadsIds();
             }
         }
     }
