@@ -1,5 +1,6 @@
 using IncredibleBackend.Messaging;
 using IncredibleBackend.Messaging.Extentions;
+using IncredibleBackend.Messaging.Interfaces;
 using IncredibleBackendContracts.Constants;
 using IncredibleBackendContracts.Events;
 using LeadUpdater;
@@ -35,6 +36,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddScoped<IVipStatusService, VipStatusService>();
         services.AddScoped<IScheduler, Scheduler>();
         services.AddScoped<ILeadIdsProducer, LeadIdsProducer>();
+        services.AddScoped<IMessageProducer, MessageProducer>();
         services.AddSingleton<ClientPolicy>(new ClientPolicy());
 
         services.AddScoped<MessageProducer>();
