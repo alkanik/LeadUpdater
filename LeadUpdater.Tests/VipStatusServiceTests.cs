@@ -1,3 +1,4 @@
+using IncredibleBackend.Messaging.Interfaces;
 using LeadUpdater.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,6 +14,7 @@ public class VipStatusServiceTests
     private CancellationTokenSource _token;
     private Mock<ILogger<VipStatusService>> _loggerMock;
     private VipStatusConfiguration _statusConfig;
+    private Mock<IMessageProducer> _producerMock;
 
     public VipStatusServiceTests()
     {
@@ -26,10 +28,12 @@ public class VipStatusServiceTests
             DAYS_COUNT_CELEBRANTS = "1",
             DAYS_COUNT_TRANSACTIONS = "1"
         });
+        _producerMock = new Mock<IMessageProducer>();
         _sut = new VipStatusService(
             _reportingClientMock.Object,
             _loggerMock.Object,
-            statusConfig);
+            statusConfig, 
+            _producerMock.Object);
     }
     
     [Fact]
@@ -45,16 +49,16 @@ public class VipStatusServiceTests
         _reportingClientMock.Setup(c => c.GetLeadIdsWithNecessaryTransactionsCount(1, 1, It.IsAny<CancellationToken>())).ReturnsAsync(idsTr);
         _reportingClientMock.Setup(c => c.GetLeadsIdsWithNecessaryAmountDifference(1, 1, It.IsAny<CancellationToken>())).ReturnsAsync(idsAm);
 
-        var expectedCount = 9;
 
         // when
-        var actual = await _sut.GetVipLeadsIds();
+        await _sut.GetVipLeadsIds();
 
         // then
-        Assert.Equal(expectedCount, actual.Ids.Count);
-        _reportingClientMock.Verify(c => c.GetCelebrantsFromDateToNow(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
-        _reportingClientMock.Verify(c => c.GetLeadIdsWithNecessaryTransactionsCount(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
-        _reportingClientMock.Verify(c => c.GetLeadsIdsWithNecessaryAmountDifference(It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
+        _reportingClientMock.Verify(c => c.GetCelebrantsFromDateToNow(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _reportingClientMock.Verify(c => c.GetLeadIdsWithNecessaryTransactionsCount(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _reportingClientMock.Verify(c => c.GetLeadsIdsWithNecessaryAmountDifference(It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        
+
     }
 
     [Fact]
@@ -67,13 +71,11 @@ public class VipStatusServiceTests
         _reportingClientMock.Setup(c => c.GetLeadIdsWithNecessaryTransactionsCount(1, 1, It.IsAny<CancellationToken>())).ReturnsAsync(emptyList);
         _reportingClientMock.Setup(c => c.GetLeadsIdsWithNecessaryAmountDifference(1, 1, It.IsAny<CancellationToken>())).ReturnsAsync(emptyList);
 
-        var expectedCount = 0;
-
+        
         // when
-        var actual = await _sut.GetVipLeadsIds();
+        await _sut.GetVipLeadsIds();
 
         // then
-        Assert.Equal(expectedCount, actual.Ids.Count);
         _reportingClientMock.Verify(c => c.GetCelebrantsFromDateToNow(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
         _reportingClientMock.Verify(c => c.GetLeadIdsWithNecessaryTransactionsCount(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
         _reportingClientMock.Verify(c => c.GetLeadsIdsWithNecessaryAmountDifference(It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -92,13 +94,10 @@ public class VipStatusServiceTests
         _reportingClientMock.Setup(c => c.GetLeadIdsWithNecessaryTransactionsCount(1, 1, It.IsAny<CancellationToken>())).ReturnsAsync(idsTr);
         _reportingClientMock.Setup(c => c.GetLeadsIdsWithNecessaryAmountDifference(1, 1, It.IsAny<CancellationToken>())).ReturnsAsync(idsAm);
 
-        var expectedCount = 5;
-
         // when
-        var actual = await _sut.GetVipLeadsIds();
+        await _sut.GetVipLeadsIds();
 
         // then
-        Assert.Equal(expectedCount, actual.Ids.Count);
         _reportingClientMock.Verify(c => c.GetCelebrantsFromDateToNow(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
         _reportingClientMock.Verify(c => c.GetLeadIdsWithNecessaryTransactionsCount(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
         _reportingClientMock.Verify(c => c.GetLeadsIdsWithNecessaryAmountDifference(It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);

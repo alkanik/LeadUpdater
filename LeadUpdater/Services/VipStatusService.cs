@@ -53,11 +53,7 @@ public class VipStatusService : IVipStatusService
         }
         else
         {
-            var vipIds = vipLeadsIds.Result;
-            vipIds.AddRange(leadsWithTransactions.Result);
-            vipIds.AddRange(leadsWithAmount.Result);
-            vipIds = vipIds.Distinct().ToList();
-
+            var vipIds = GetUniqueIdsList(vipLeadsIds.Result, leadsWithTransactions.Result, leadsWithAmount.Result);
             await SendLeadsIdsToQueue(vipIds);
         }
     }
@@ -77,5 +73,12 @@ public class VipStatusService : IVipStatusService
             Body = $"{DateTime.Now} Some http request to reporting returned null. Go to see logs."
         };
         await _messageProducer.ProduceMessage<EmailEvent>(message, "Sent mail for Admin to Queue");
+    }
+
+    private List<int> GetUniqueIdsList(List<int> list1, List<int> list2, List<int> list3)
+    {
+        list1.AddRange(list2);
+        list1.AddRange(list3);
+        return list1.Distinct().ToList();
     }
 }
