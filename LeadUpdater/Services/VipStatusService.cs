@@ -1,4 +1,5 @@
-﻿using IncredibleBackendContracts.Events;
+﻿using IncredibleBackend.Messaging.Interfaces;
+using IncredibleBackendContracts.Events;
 using LeadUpdater.Infrastructure;
 using Microsoft.Extensions.Options;
 using System.Dynamic;
@@ -12,16 +13,22 @@ public class VipStatusService : IVipStatusService
     private readonly CancellationTokenSource _token;
     private readonly ILogger<VipStatusService> _logger;
     private readonly VipStatusConfiguration _statusConfig;
+    private readonly IMessageProducer _messageProducer;
 
-    public VipStatusService(IReportingClient reportingClient, ILogger<VipStatusService> logger, IOptions<VipStatusConfiguration> statusConfig)
+    public VipStatusService(
+        IReportingClient reportingClient, 
+        ILogger<VipStatusService> logger, 
+        IOptions<VipStatusConfiguration> statusConfig, 
+        IMessageProducer messageProducer)
     {
         _reportingClient = reportingClient;
         _token = new CancellationTokenSource();
         _logger = logger;
         _statusConfig = statusConfig.Value;
+        _messageProducer = messageProducer;
     }
 
-    public async Task<LeadsRoleUpdatedEvent> GetVipLeadsIds()
+    public async Task GetVipLeadsIds()
     {
         _logger.LogInformation($"Get ids leads with birthday due {_statusConfig.DAYS_COUNT_CELEBRANTS} days");
         var vipLeadsIds = _reportingClient.GetCelebrantsFromDateToNow(Int32.Parse(_statusConfig.DAYS_COUNT_CELEBRANTS), _token.Token);
@@ -38,12 +45,40 @@ public class VipStatusService : IVipStatusService
             Int32.Parse(_statusConfig.DAYS_COUNT_AMOUNT),
             _token.Token);
 
-        await Task.WhenAll(vipLeadsIds, leadsWithTransactions, leadsWithTransactions);
+        await Task.WhenAll(vipLeadsIds, leadsWithTransactions, leadsWithAmount);
+        
+        if (vipLeadsIds.Result == null || leadsWithTransactions.Result == null || leadsWithAmount.Result == null)
+        {
+            await SendMailToAdmin();
+        }
+        else
+        {
+            var vipIds = GetUniqueIdsList(vipLeadsIds.Result, leadsWithTransactions.Result, leadsWithAmount.Result);
+            await SendLeadsIdsToQueue(vipIds);
+        }
+    }
 
-        vipLeadsIds.Result.AddRange(leadsWithTransactions.Result);
-        vipLeadsIds.Result.AddRange(leadsWithAmount.Result);
-        var vipIds = vipLeadsIds.Result.Distinct().ToList();
+    private async Task SendLeadsIdsToQueue(List<int> ids)
+    {
+        var modelIds = new LeadsRoleUpdatedEvent(ids);
+        await _messageProducer.ProduceMessage(modelIds, "Sent Lead's Ids to Queue");
+    }
 
-        return new LeadsRoleUpdatedEvent(vipIds);
+    private async Task SendMailToAdmin()
+    {
+        var message = new EmailEvent()
+        {
+            Email = _statusConfig.ADMIN_EMAIL,
+            Subject = "Lead Updater couldn't receive leads from Reporting",
+            Body = $"{DateTime.Now} Some http request to reporting returned null. Go to see logs."
+        };
+        await _messageProducer.ProduceMessage<EmailEvent>(message, "Sent mail for Admin to Queue");
+    }
+
+    private List<int> GetUniqueIdsList(List<int> list1, List<int> list2, List<int> list3)
+    {
+        list1.AddRange(list2);
+        list1.AddRange(list3);
+        return list1.Distinct().ToList();
     }
 }
