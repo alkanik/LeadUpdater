@@ -19,7 +19,7 @@ LogManager.Configuration.Variables[$"{builder.Environment: LOG_DIRECTORY}"] = "L
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options =>
     {
-        options.ServiceName = "LeadUpdater";
+        options.ServiceName = Constant.ServiceName;
     })
     .ConfigureLogging((hostContext, logging) =>
     {
