@@ -8,13 +8,11 @@ namespace LeadUpdater;
 
 public class Worker : BackgroundService
 {
-    private readonly IMessageProducer _messageProducer;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<Worker> _logger;
 
-    public Worker(IMessageProducer messageProducer, IServiceProvider serviceProvider, ILogger<Worker> logger)
+    public Worker(IServiceProvider serviceProvider, ILogger<Worker> logger)
     {
-        _messageProducer = messageProducer;
         _serviceProvider = serviceProvider;
         _logger = logger;
     }

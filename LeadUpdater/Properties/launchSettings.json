@@ -4,8 +4,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "LOG_DIRECTORY": "C:\\nlog"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }
