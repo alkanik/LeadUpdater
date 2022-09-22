@@ -1,6 +1,7 @@
 using Cronos;
+using IncredibleBackend.Messaging;
+using IncredibleBackend.Messaging.Interfaces;
 using LeadUpdater.Infrastructure;
-using LeadUpdater.Interfaces;
 using NLog.Extensions.Logging;
 
 namespace LeadUpdater;
@@ -18,7 +19,7 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
+        _logger.LogInformation($"{Constant.LogMessageLeadUpdaterRun}{DateTimeOffset.Now}");
         
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -27,22 +28,17 @@ public class Worker : BackgroundService
             {
                 IScheduler scheduler =
                     scope.ServiceProvider.GetRequiredService<IScheduler>();
+
                 var delayTimeSpan = scheduler.GetDelayTimeSpan();
-                _logger.LogInformation("LeadUpdater next start will be at : {time}", (DateTimeOffset.Now + delayTimeSpan));
+
+                _logger.LogInformation($"{Constant.LogMessageNextUpdate}{(DateTimeOffset.Now + delayTimeSpan)}");
                 await Task.Delay(delayTimeSpan, stoppingToken);
 
                 IReportingClient httpClientService =
                     scope.ServiceProvider.GetRequiredService<IReportingClient>();
             
                 var vipStatusService = scope.ServiceProvider.GetRequiredService<IVipStatusService>();
-                var vipLeadsIds = await vipStatusService.GetVipLeadsIds();
-
-                ILeadIdsProducer leadIdsProducer = 
-                    scope.ServiceProvider.GetRequiredService<ILeadIdsProducer>();
-
-
-
-                await leadIdsProducer.SendMessage(vipLeadsIds);
+                await vipStatusService.GetVipLeadsIds();
             }
         }
     }

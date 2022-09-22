@@ -1,11 +1,12 @@
 using IncredibleBackend.Messaging;
+using IncredibleBackend.Messaging.Extentions;
+using IncredibleBackend.Messaging.Interfaces;
 using IncredibleBackendContracts.Constants;
 using IncredibleBackendContracts.Events;
 using LeadUpdater;
+using LeadUpdater.Extensions;
 using LeadUpdater.Infrastructure;
-using LeadUpdater.Interfaces;
 using LeadUpdater.Policies;
-using LeadUpdater.Producers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using NLog;
@@ -18,7 +19,7 @@ LogManager.Configuration.Variables[$"{builder.Environment: LOG_DIRECTORY}"] = "L
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options =>
     {
-        options.ServiceName = "LeadUpdater";
+        options.ServiceName = Constant.ServiceName;
     })
     .ConfigureLogging((hostContext, logging) =>
     {
@@ -27,24 +28,8 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .ConfigureServices(services =>
     {
-        services.AddHostedService<Worker>();
-        services.AddHttpClient("Reporting").AddPolicyHandler(
-            request => request.Method == HttpMethod.Get ? new ClientPolicy().RetryPolicy : new ClientPolicy().RetryPolicy);
-        services.AddScoped<IReportingClient, ReportingClient>();
-        services.AddScoped<IVipStatusService, VipStatusService>();
-        services.AddScoped<IScheduler, Scheduler>();
-        services.AddScoped<ILeadIdsProducer, LeadIdsProducer>();
-        services.AddSingleton<ClientPolicy>(new ClientPolicy());
-
-        services.AddScoped<MessageProducer>();
-        services.RegisterConsumersAndProducers(
-            null, 
-            null,
-            (cfg) =>
-            {
-               cfg.RegisterProducer<LeadsRoleUpdatedEvent>(RabbitEndpoint.LeadsRoleUpdateCrm);
-            });
-        services.Configure<VipStatusConfiguration>(builder.Configuration);
+        ServiceCollectionExtensions.AddServices(services);
+        ServiceCollectionExtensions.ConfigureService(services, builder);
     })
     .Build();
 
