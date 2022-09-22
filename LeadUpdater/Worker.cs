@@ -19,7 +19,7 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("LeadUpdater running at: {time}", DateTimeOffset.Now);
+        _logger.LogInformation($"{Constant.LogMessageLeadUpdaterRun}{DateTimeOffset.Now}");
         
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -31,7 +31,7 @@ public class Worker : BackgroundService
 
                 var delayTimeSpan = scheduler.GetDelayTimeSpan();
 
-                _logger.LogInformation("Next update will be at : {time}", (DateTimeOffset.Now + delayTimeSpan));
+                _logger.LogInformation($"{Constant.LogMessageNextUpdate}{(DateTimeOffset.Now + delayTimeSpan)}");
                 await Task.Delay(delayTimeSpan, stoppingToken);
 
                 IReportingClient httpClientService =

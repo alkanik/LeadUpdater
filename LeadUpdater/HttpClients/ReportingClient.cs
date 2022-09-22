@@ -26,11 +26,11 @@ public class ReportingClient : IReportingClient
 
     public async Task<List<int>?> GetCelebrantsFromDateToNow(int daysCount, CancellationToken token)
     {
-        var httpClient = _httpClientFactory.CreateClient("Reporting");
+        var httpClient = _httpClientFactory.CreateClient(Constant.HttpClientName);
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadInfoPath}?{daysCount}",
+            using (var response = await httpClient.GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadInfoPath}{daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -48,12 +48,12 @@ public class ReportingClient : IReportingClient
 
     public async Task<List<int>?> GetLeadIdsWithNecessaryTransactionsCount(int transactionsCount, int daysCount, CancellationToken token)
     {
-        var httpClient = _httpClientFactory.CreateClient("Reporting");
+        var httpClient = _httpClientFactory.CreateClient(Constant.HttpClientName);
 
         try
         {
             using (var response = await httpClient
-                .GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadStatisticsPath}{Constant.LSTransactionPath}transactionsCount={transactionsCount}&daysCount={daysCount}",
+                .GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadStatisticsTransactionPath}transactionsCount={transactionsCount}&daysCount={daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -71,12 +71,12 @@ public class ReportingClient : IReportingClient
 
     public async Task<List<int>?> GetLeadsIdsWithNecessaryAmountDifference(decimal amountDifference, int daysCount, CancellationToken token)
     {
-        var httpClient = _httpClientFactory.CreateClient("Reporting");
+        var httpClient = _httpClientFactory.CreateClient(Constant.HttpClientName);
 
         try
         {
             using (var response = await httpClient
-                .GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadStatisticsPath}{Constant.LSAmountPath}amountDifference={amountDifference}&daysCount={daysCount}",
+                .GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadStatisticsAmountPath}amountDifference={amountDifference}&daysCount={daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();

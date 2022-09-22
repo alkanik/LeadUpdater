@@ -19,7 +19,7 @@ namespace LeadUpdater.Extensions
         public static void AddServices(this IServiceCollection services)
         {
             services.AddHostedService<Worker>();
-            services.AddHttpClient("Reporting").AddPolicyHandler(
+            services.AddHttpClient(Constant.HttpClientName).AddPolicyHandler(
                 request => request.Method == HttpMethod.Get ? new ClientPolicy().RetryPolicy : new ClientPolicy().RetryPolicy);
             services.AddScoped<IReportingClient, ReportingClient>();
             services.AddScoped<IVipStatusService, VipStatusService>();

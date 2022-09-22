@@ -30,16 +30,16 @@ public class VipStatusService : IVipStatusService
 
     public async Task GetVipLeadsIds()
     {
-        _logger.LogInformation($"Get ids leads with birthday due {_statusConfig.DAYS_COUNT_CELEBRANTS} days");
+        _logger.LogInformation(Constant.LogMessageGetIdsBirthday, _statusConfig.DAYS_COUNT_CELEBRANTS);
         var vipLeadsIds = _reportingClient.GetCelebrantsFromDateToNow(Int32.Parse(_statusConfig.DAYS_COUNT_CELEBRANTS), _token.Token);
 
-        _logger.LogInformation($"Get ids leads with {_statusConfig.TRANSACTIONS_COUNT} transactions due {_statusConfig.DAYS_COUNT_TRANSACTIONS} days");
+        _logger.LogInformation(Constant.LogMessageGetIdsTransactions, _statusConfig.TRANSACTIONS_COUNT,_statusConfig.DAYS_COUNT_TRANSACTIONS);
         var leadsWithTransactions = _reportingClient.GetLeadIdsWithNecessaryTransactionsCount(
             Int32.Parse(_statusConfig.TRANSACTIONS_COUNT),
             Int32.Parse(_statusConfig.DAYS_COUNT_TRANSACTIONS),
             _token.Token);
 
-        _logger.LogInformation($"Get ids leads with amount difference {_statusConfig.AMOUNT_DIFFERENCE} due {_statusConfig.DAYS_COUNT_AMOUNT} days");
+        _logger.LogInformation(Constant.LogMessageGetIdsAmounts, _statusConfig.AMOUNT_DIFFERENCE, _statusConfig.DAYS_COUNT_AMOUNT);
         var leadsWithAmount = _reportingClient.GetLeadsIdsWithNecessaryAmountDifference(
             Decimal.Parse(_statusConfig.AMOUNT_DIFFERENCE),
             Int32.Parse(_statusConfig.DAYS_COUNT_AMOUNT),
@@ -61,7 +61,7 @@ public class VipStatusService : IVipStatusService
     private async Task SendLeadsIdsToQueue(List<int> ids)
     {
         var modelIds = new LeadsRoleUpdatedEvent(ids);
-        await _messageProducer.ProduceMessage(modelIds, "Sent Lead's Ids to Queue");
+        await _messageProducer.ProduceMessage(modelIds, Constant.LogMessageSentLeads);
     }
 
     private async Task SendMailToAdmin()
@@ -69,10 +69,10 @@ public class VipStatusService : IVipStatusService
         var message = new EmailEvent()
         {
             Email = _statusConfig.ADMIN_EMAIL,
-            Subject = "Lead Updater couldn't receive leads from Reporting",
-            Body = $"{DateTime.Now} Some http request to reporting returned null. Go to see logs."
+            Subject = Constant.EmailSubject,
+            Body = $"{DateTime.Now}{Constant.EmailBody}"
         };
-        await _messageProducer.ProduceMessage<EmailEvent>(message, "Sent mail for Admin to Queue");
+        await _messageProducer.ProduceMessage<EmailEvent>(message, Constant.LogMessageSentMail);
     }
 
     private List<int> GetUniqueIdsList(List<int> list1, List<int> list2, List<int> list3)
