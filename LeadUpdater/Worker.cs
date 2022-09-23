@@ -1,8 +1,5 @@
-using Cronos;
-using IncredibleBackend.Messaging;
-using IncredibleBackend.Messaging.Interfaces;
 using LeadUpdater.Infrastructure;
-using NLog.Extensions.Logging;
+using Polly;
 
 namespace LeadUpdater;
 
@@ -20,26 +17,38 @@ public class Worker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation($"{Constant.LogMessageLeadUpdaterRun}{DateTimeOffset.Now}");
-        
+
         while (!stoppingToken.IsCancellationRequested)
         {
-
-            using (var scope = _serviceProvider.CreateScope())
+            try
             {
-                IScheduler scheduler =
-                    scope.ServiceProvider.GetRequiredService<IScheduler>();
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    IScheduler scheduler =
+                        scope.ServiceProvider.GetRequiredService<IScheduler>();
 
-                var delayTimeSpan = scheduler.GetDelayTimeSpan();
+                    var delayTimeSpan = scheduler.GetDelayTimeSpan();
 
-                _logger.LogInformation($"{Constant.LogMessageNextUpdate}{(DateTimeOffset.Now + delayTimeSpan)}");
-                await Task.Delay(delayTimeSpan, stoppingToken);
+                    _logger.LogInformation($"{Constant.LogMessageNextUpdate}{(DateTimeOffset.Now + delayTimeSpan)}");
+                    await Task.Delay(delayTimeSpan, stoppingToken);
 
-                IReportingClient httpClientService =
-                    scope.ServiceProvider.GetRequiredService<IReportingClient>();
-            
-                var vipStatusService = scope.ServiceProvider.GetRequiredService<IVipStatusService>();
-                await vipStatusService.GetVipLeadsIds();
+                    IReportingClient httpClientService =
+                        scope.ServiceProvider.GetRequiredService<IReportingClient>();
+
+                    var vipStatusService = scope.ServiceProvider.GetRequiredService<IVipStatusService>();
+                    await vipStatusService.GetVipLeadsIds();
+                }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Sending an alert. Service will retry.");
+            }
+            await Task.Delay(1000, stoppingToken);
+        }
+
+        if (stoppingToken.IsCancellationRequested)
+        {
+            _logger.LogWarning("Execution Cancelled");
         }
     }
 }
