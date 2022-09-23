@@ -11,6 +11,7 @@ using LeadUpdater.Policies;
 using IncredibleBackendContracts.Events;
 using IncredibleBackendContracts.Constants;
 using Microsoft.AspNetCore.Builder;
+using System.Runtime.CompilerServices;
 
 namespace LeadUpdater.Extensions
 {
@@ -39,8 +40,7 @@ namespace LeadUpdater.Extensions
         
         public static void ConfigureService(this IServiceCollection services, WebApplicationBuilder builder)
         {
-            services.Configure<VipStatusConfiguration>(builder.Configuration);
-            services.Configure<HostOptions>(hostOptions =>
+            services.Configure<HostOptions>( hostOptions =>
             {
                 hostOptions.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
             });

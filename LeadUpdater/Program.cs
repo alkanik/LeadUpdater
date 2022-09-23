@@ -26,8 +26,10 @@ IHost host = Host.CreateDefaultBuilder(args)
         logging.ClearProviders();
         logging.AddNLog();
     })
-    .ConfigureServices(services =>
+    .ConfigureServices((hostContext, services) =>
     {
+        IConfiguration configuration = hostContext.Configuration;
+        services.Configure<VipStatusConfiguration>(configuration.GetSection("VipStatusConfiguration"));
         ServiceCollectionExtensions.AddServices(services);
         ServiceCollectionExtensions.ConfigureService(services, builder);
     })
