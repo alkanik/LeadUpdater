@@ -7,7 +7,7 @@ public class Constant
     public const string LeadStatisticsTransactionPath = "LeadStatistics/transactions-count?";
     public const string LeadStatisticsAmountPath = "LeadStatistics/amount-difference?";
     public const string CronExpressionTest = "0 * * ? * *";
-    public const string CronExpression = "0 0 * ? * *";
+    public const string CronExpression = "0 0,15,30,45 * ? * *";
     public const string LogMessageLeadUpdaterRun = "LeadUpdater running at: ";
     public const string LogMessageNextUpdate = "Next update will be at: ";
     public const string LogMessageGetIdsBirthday = "Get ids leads with birthday due {0} days";
