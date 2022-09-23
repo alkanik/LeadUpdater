@@ -40,6 +40,10 @@ namespace LeadUpdater.Extensions
         public static void ConfigureService(this IServiceCollection services, WebApplicationBuilder builder)
         {
             services.Configure<VipStatusConfiguration>(builder.Configuration);
+            services.Configure<HostOptions>(hostOptions =>
+            {
+                hostOptions.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+            });
         }
     }
 }
