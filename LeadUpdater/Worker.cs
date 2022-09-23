@@ -1,5 +1,4 @@
 using LeadUpdater.Infrastructure;
-using Polly;
 
 namespace LeadUpdater;
 
@@ -41,14 +40,9 @@ public class Worker : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Sending an alert. Service will retry.");
+                _logger.LogInformation($"{ex.Message}");
             }
             await Task.Delay(1000, stoppingToken);
-        }
-
-        if (stoppingToken.IsCancellationRequested)
-        {
-            _logger.LogWarning("Execution Cancelled");
         }
     }
 }

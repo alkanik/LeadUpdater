@@ -1,17 +1,11 @@
-﻿using IncredibleBackend.Messaging.Interfaces;
-using IncredibleBackend.Messaging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using IncredibleBackend.Messaging;
 using IncredibleBackend.Messaging.Extentions;
+using IncredibleBackend.Messaging.Interfaces;
+using IncredibleBackendContracts.Constants;
+using IncredibleBackendContracts.Events;
 using LeadUpdater.Infrastructure;
 using LeadUpdater.Policies;
-using IncredibleBackendContracts.Events;
-using IncredibleBackendContracts.Constants;
 using Microsoft.AspNetCore.Builder;
-using System.Runtime.CompilerServices;
 
 namespace LeadUpdater.Extensions
 {

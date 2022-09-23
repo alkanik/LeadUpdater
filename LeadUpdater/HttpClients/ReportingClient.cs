@@ -1,9 +1,6 @@
-﻿using LeadUpdater.Policies;
-using LeadUpdater.Infrastructure;
-using System.Text.Json;
+﻿using LeadUpdater.Infrastructure;
 using Microsoft.Extensions.Options;
-using IncredibleBackend.Messaging.Interfaces;
-using IncredibleBackendContracts.Events;
+using System.Text.Json;
 
 namespace LeadUpdater;
 

@@ -1,14 +1,6 @@
-using IncredibleBackend.Messaging;
-using IncredibleBackend.Messaging.Extentions;
-using IncredibleBackend.Messaging.Interfaces;
-using IncredibleBackendContracts.Constants;
-using IncredibleBackendContracts.Events;
-using LeadUpdater;
 using LeadUpdater.Extensions;
 using LeadUpdater.Infrastructure;
-using LeadUpdater.Policies;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
 using NLog;
 using NLog.Extensions.Logging;
 using NLog.Web;
