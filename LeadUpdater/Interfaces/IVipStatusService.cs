@@ -4,6 +4,6 @@ namespace LeadUpdater
 {
     public interface IVipStatusService
     {
-        Task<LeadsRoleUpdatedEvent> GetVipLeadsIds();
+        Task GetVipLeadsIds();
     }
 }

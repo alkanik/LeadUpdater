@@ -8,4 +8,5 @@ public class VipStatusConfiguration
     public string DAYS_COUNT_AMOUNT { get; set; }
     public string TRANSACTIONS_COUNT { get; set; }
     public string AMOUNT_DIFFERENCE { get; set; }
+    public string ADMIN_EMAIL { get; set; }
 }

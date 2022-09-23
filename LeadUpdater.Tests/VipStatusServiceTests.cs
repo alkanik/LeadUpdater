@@ -1,3 +1,5 @@
+using IncredibleBackend.Messaging.Interfaces;
+using IncredibleBackendContracts.Events;
 using LeadUpdater.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -10,9 +12,9 @@ public class VipStatusServiceTests
 {
     private VipStatusService _sut;
     private Mock<IReportingClient> _reportingClientMock;
-    private CancellationTokenSource _token;
     private Mock<ILogger<VipStatusService>> _loggerMock;
     private VipStatusConfiguration _statusConfig;
+    private Mock<IMessageProducer> _producerMock;
 
     public VipStatusServiceTests()
     {
@@ -26,20 +28,21 @@ public class VipStatusServiceTests
             DAYS_COUNT_CELEBRANTS = "1",
             DAYS_COUNT_TRANSACTIONS = "1"
         });
+        _producerMock = new Mock<IMessageProducer>();
         _sut = new VipStatusService(
             _reportingClientMock.Object,
             _loggerMock.Object,
-            statusConfig);
+            statusConfig, 
+            _producerMock.Object);
     }
     
     [Fact]
-    public async Task GetVipLeadsIdsTest_WhenIdsExist_ThenItsGetted()
+    public async Task GetVipLeadsIdsTest_WhenRequestsPassed_ThenIdsSentToQueue()
     {
         // given
         var idsCeleb = new List<int> { 1, 2, 3 };
         var idsTr = new List<int> { 4,5,6 };
         var idsAm = new List<int> { 77,98,11 };
-        var token = new CancellationTokenSource();
 
         _reportingClientMock.Setup(c => c.GetCelebrantsFromDateToNow(1, It.IsAny<CancellationToken>())).ReturnsAsync(idsCeleb);
         _reportingClientMock.Setup(c => c.GetLeadIdsWithNecessaryTransactionsCount(1, 1, It.IsAny<CancellationToken>())).ReturnsAsync(idsTr);
@@ -48,17 +51,18 @@ public class VipStatusServiceTests
         var expectedCount = 9;
 
         // when
-        var actual = await _sut.GetVipLeadsIds();
+        await _sut.GetVipLeadsIds();
 
         // then
-        Assert.Equal(expectedCount, actual.Ids.Count);
-        _reportingClientMock.Verify(c => c.GetCelebrantsFromDateToNow(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
-        _reportingClientMock.Verify(c => c.GetLeadIdsWithNecessaryTransactionsCount(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
-        _reportingClientMock.Verify(c => c.GetLeadsIdsWithNecessaryAmountDifference(It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
+        _reportingClientMock.Verify(c => c.GetCelebrantsFromDateToNow(1, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _reportingClientMock.Verify(c => c.GetLeadIdsWithNecessaryTransactionsCount(1, 1, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _reportingClientMock.Verify(c => c.GetLeadsIdsWithNecessaryAmountDifference(1, 1, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _producerMock.Verify(p => p.ProduceMessage(It.Is<LeadsRoleUpdatedEvent>(i => i.Ids.Count == expectedCount), It.IsAny<string>()),Times.Once);
+        _producerMock.Verify(p => p.ProduceMessage(It.IsAny<EmailEvent>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
-    public async Task GetVipLeadsIdsTest_WhenIdsDoNotExist_ThenItsNotGetted()
+    public async Task GetVipLeadsIdsTest_WhenIdsDoNotExist_ThenEmptyListSentToQueue()
     {
         // given
         var emptyList = new List<int>();
@@ -70,23 +74,23 @@ public class VipStatusServiceTests
         var expectedCount = 0;
 
         // when
-        var actual = await _sut.GetVipLeadsIds();
+        await _sut.GetVipLeadsIds();
 
         // then
-        Assert.Equal(expectedCount, actual.Ids.Count);
-        _reportingClientMock.Verify(c => c.GetCelebrantsFromDateToNow(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
-        _reportingClientMock.Verify(c => c.GetLeadIdsWithNecessaryTransactionsCount(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
-        _reportingClientMock.Verify(c => c.GetLeadsIdsWithNecessaryAmountDifference(It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
+        _reportingClientMock.Verify(c => c.GetCelebrantsFromDateToNow(1, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _reportingClientMock.Verify(c => c.GetLeadIdsWithNecessaryTransactionsCount(1, 1, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _reportingClientMock.Verify(c => c.GetLeadsIdsWithNecessaryAmountDifference(1, 1, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _producerMock.Verify(p => p.ProduceMessage(It.Is<LeadsRoleUpdatedEvent>(i => i.Ids.Count == expectedCount), It.IsAny<string>()), Times.Once);
+        _producerMock.Verify(p => p.ProduceMessage(It.IsAny<EmailEvent>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
-    public async Task GetVipLeadsIdsTest_WhenTheSameIdsGettedFromReporting_ThenListOfUniqueIdsGetted()
+    public async Task GetVipLeadsIdsTest_WhenTheSameIdsGettedFromReporting_ThenListOfUniqueIdsSent()
     {
         // given
         var idsCeleb = new List<int> { 1, 2, 3, 4 };
         var idsTr = new List<int> { 1,2 };
         var idsAm = new List<int> { 4,5 };
-        var token = new CancellationTokenSource();
 
         _reportingClientMock.Setup(c => c.GetCelebrantsFromDateToNow(1, It.IsAny<CancellationToken>())).ReturnsAsync(idsCeleb);
         _reportingClientMock.Setup(c => c.GetLeadIdsWithNecessaryTransactionsCount(1, 1, It.IsAny<CancellationToken>())).ReturnsAsync(idsTr);
@@ -95,12 +99,35 @@ public class VipStatusServiceTests
         var expectedCount = 5;
 
         // when
-        var actual = await _sut.GetVipLeadsIds();
+        await _sut.GetVipLeadsIds();
 
         // then
-        Assert.Equal(expectedCount, actual.Ids.Count);
-        _reportingClientMock.Verify(c => c.GetCelebrantsFromDateToNow(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
-        _reportingClientMock.Verify(c => c.GetLeadIdsWithNecessaryTransactionsCount(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
-        _reportingClientMock.Verify(c => c.GetLeadsIdsWithNecessaryAmountDifference(It.IsAny<decimal>(), It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
+        _reportingClientMock.Verify(c => c.GetCelebrantsFromDateToNow(1, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _reportingClientMock.Verify(c => c.GetLeadIdsWithNecessaryTransactionsCount(1, 1, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _reportingClientMock.Verify(c => c.GetLeadsIdsWithNecessaryAmountDifference(1, 1, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _producerMock.Verify(p => p.ProduceMessage(It.Is<LeadsRoleUpdatedEvent>(i => i.Ids.Count == expectedCount), It.IsAny<string>()), Times.Once);
+        _producerMock.Verify(p => p.ProduceMessage(It.IsAny<EmailEvent>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetVipLeadsIdsTest_WhenAnyRequestGetNull_ThenMailToAdminSent()
+    {
+        // given
+        var ids = new List<int> { 1, 2, 3, 4 };
+        List<int> ids2 = null;
+
+        _reportingClientMock.Setup(c => c.GetCelebrantsFromDateToNow(1, It.IsAny<CancellationToken>())).ReturnsAsync(ids);
+        _reportingClientMock.Setup(c => c.GetLeadIdsWithNecessaryTransactionsCount(1, 1, It.IsAny<CancellationToken>())).ReturnsAsync(ids);
+        _reportingClientMock.Setup(c => c.GetLeadsIdsWithNecessaryAmountDifference(1, 1, It.IsAny<CancellationToken>())).ReturnsAsync(ids2);
+
+        // when
+        await _sut.GetVipLeadsIds();
+
+        // then
+        _reportingClientMock.Verify(c => c.GetCelebrantsFromDateToNow(1, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _reportingClientMock.Verify(c => c.GetLeadIdsWithNecessaryTransactionsCount(1, 1, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _reportingClientMock.Verify(c => c.GetLeadsIdsWithNecessaryAmountDifference(1, 1, It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+        _producerMock.Verify(p => p.ProduceMessage(It.IsAny<LeadsRoleUpdatedEvent>(), It.IsAny<string>()), Times.Never);
+        _producerMock.Verify(p => p.ProduceMessage(It.IsAny<EmailEvent>(), It.IsAny<string>()), Times.Once);
     }
 }

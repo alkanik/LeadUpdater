@@ -2,6 +2,8 @@
 using LeadUpdater.Infrastructure;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using IncredibleBackend.Messaging.Interfaces;
+using IncredibleBackendContracts.Events;
 
 namespace LeadUpdater;
 
@@ -12,7 +14,9 @@ public class ReportingClient : IReportingClient
     private readonly ILogger<ReportingClient> _logger;
     private readonly VipStatusConfiguration _statusConfig;
 
-    public ReportingClient(IHttpClientFactory httpClientFactory, ILogger<ReportingClient> logger, IOptions<VipStatusConfiguration> statusConfig)
+    public ReportingClient(IHttpClientFactory httpClientFactory, 
+        ILogger<ReportingClient> logger, 
+        IOptions<VipStatusConfiguration> statusConfig)
     {
         _httpClientFactory = httpClientFactory;
         _options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -20,13 +24,13 @@ public class ReportingClient : IReportingClient
         _statusConfig = statusConfig.Value;
     }
 
-    public async Task<List<int>> GetCelebrantsFromDateToNow(int daysCount, CancellationToken token)
+    public async Task<List<int>?> GetCelebrantsFromDateToNow(int daysCount, CancellationToken token)
     {
-        var httpClient = _httpClientFactory.CreateClient("Reporting");
+        var httpClient = _httpClientFactory.CreateClient(Constant.HttpClientName);
 
         try
         {
-            using (var response = await httpClient.GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadInfoPath}?{daysCount}",
+            using (var response = await httpClient.GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadInfoPath}{daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -38,18 +42,18 @@ public class ReportingClient : IReportingClient
         catch (Exception ex)
         {
             _logger.LogInformation($"{ex.Message}");
-            return new List<int>();
+            return null;
         }
     }
 
-    public async Task<List<int>> GetLeadIdsWithNecessaryTransactionsCount(int transactionsCount, int daysCount, CancellationToken token)
+    public async Task<List<int>?> GetLeadIdsWithNecessaryTransactionsCount(int transactionsCount, int daysCount, CancellationToken token)
     {
-        var httpClient = _httpClientFactory.CreateClient("Reporting");
+        var httpClient = _httpClientFactory.CreateClient(Constant.HttpClientName);
 
         try
         {
             using (var response = await httpClient
-                .GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadStatisticsPath}{Constant.LSTransactionPath}transactionsCount={transactionsCount}&daysCount={daysCount}",
+                .GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadStatisticsTransactionPath}transactionsCount={transactionsCount}&daysCount={daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -61,18 +65,18 @@ public class ReportingClient : IReportingClient
         catch (Exception ex)
         {
             _logger.LogInformation($"{ex.Message}");
-            return new List<int>();
+            return null;
         }
     }
 
-    public async Task<List<int>> GetLeadsIdsWithNecessaryAmountDifference(decimal amountDifference, int daysCount, CancellationToken token)
+    public async Task<List<int>?> GetLeadsIdsWithNecessaryAmountDifference(decimal amountDifference, int daysCount, CancellationToken token)
     {
-        var httpClient = _httpClientFactory.CreateClient("Reporting");
+        var httpClient = _httpClientFactory.CreateClient(Constant.HttpClientName);
 
         try
         {
             using (var response = await httpClient
-                .GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadStatisticsPath}{Constant.LSAmountPath}amountDifference={amountDifference}&daysCount={daysCount}",
+                .GetAsync($"{_statusConfig.REPORTING_BASE_ADDRESS}{Constant.LeadStatisticsAmountPath}amountDifference={amountDifference}&daysCount={daysCount}",
                 HttpCompletionOption.ResponseHeadersRead, token))
             {
                 response.EnsureSuccessStatusCode();
@@ -84,7 +88,7 @@ public class ReportingClient : IReportingClient
         catch (Exception ex)
         {
             _logger.LogInformation($"{ex.Message}");
-            return new List<int>();
+            return null;
         }
     }
 }
